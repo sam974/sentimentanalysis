@@ -1,0 +1,23 @@
+name: Run Notebook on OpenTofu
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-notebook:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Apply OpenTofu deployment
+        run: |
+          cd /home/samuel/dev/ingenieuria/projet7/iac  # adapter à votre organisation sur la machine runner
+          tofu apply -auto-approve
+
+      - name: Execute Jupyter Notebook
+        run: |
+          docker exec ml_training jupyter nbconvert --to notebook --execute /root/work/projet_7_tinybert.ipynb --output executed_notebook.ipynb
