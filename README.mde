@@ -1,0 +1,11 @@
+This project aims to study different ML models for sentiment analysis.
+
+# Installation
+
+From iac directory
+$ docker build -t mycustom/ml-image:latest .
+$ tofu apply
+
+For debug:
+docker exec -it ml_training bash
+
