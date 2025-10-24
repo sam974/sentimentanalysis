@@ -21,9 +21,11 @@ resource "docker_image" "ml_image" {
 
 resource "docker_container" "ml_container" {
   name  = "ml_training"
-  # Utilise l'ID de l'image (hash SHA256) au lieu du tag.
-  # Cela garantit que le conteneur est recréé si l'image change.
-  image = docker_image.ml_image.id
+  image = docker_image.ml_image.name
+
+  # Ajout d'une variable d'environnement pour forcer la recréation du conteneur
+  # lorsque l'ID de l'image change.
+  env = ["IMAGE_ID=${docker_image.ml_image.id}"]
 
   ports {
     internal = 8888
