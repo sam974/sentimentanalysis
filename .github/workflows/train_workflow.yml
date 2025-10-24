@@ -20,4 +20,4 @@ jobs:
 
       - name: Execute Jupyter Notebook
         run: |
-          docker exec ml_training jupyter nbconvert --to notebook --execute /root/work/projet_7_distillbert.ipynb --output executed_notebook.ipynb
+          docker exec ml_training jupyter run /root/work/projet_7_distillbert.ipynb
