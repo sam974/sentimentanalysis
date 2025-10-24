@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y git
 # Installer pip et packages Python en fixant la version tensorflow compatible
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir tensorflow==2.19.0 \
-    && pip install --no-cache-dir pandas mlflow jupyter torch transformers nltk tf-keras
+    && pip install --no-cache-dir pandas mlflow jupyter torch transformers nltk tf-keras torchvision
 
 # Installer tensorflow-text avec version compatible (ajuster au besoin)
 RUN pip install --no-cache-dir tensorflow-text==2.19.0

@@ -12,12 +12,18 @@ provider "docker" {
 }
 
 resource "docker_image" "ml_image" {
-  name = "mycustom/ml-image:latest"
+  name         = "mycustom/ml-image:latest"
+  keep_locally = true # Empêche Terraform de supprimer l'image si elle n'est plus utilisée par un conteneur
+  build {
+    context = "."
+  }
 }
 
 resource "docker_container" "ml_container" {
   name  = "ml_training"
-  image = docker_image.ml_image.name
+  # Utilise l'ID de l'image (hash SHA256) au lieu du tag.
+  # Cela garantit que le conteneur est recréé si l'image change.
+  image = docker_image.ml_image.id
 
   ports {
     internal = 8888
