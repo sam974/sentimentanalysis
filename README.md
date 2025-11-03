@@ -1,4 +1,30 @@
-This project aims to study different ML models for sentiment analysis.
+This project aims to study different ML models for sentiment analysis.This repository contains the code and resources for this project.
+
+## Project Structure
+
+The project is organized into the following directories:
+
+*   **`api/`**: Contains the FastAPI application for serving the sentiment analysis model.
+*   **`iac/`**: Infrastructure as Code (IaC) using Terraform (OpenTofu) to deploy the application and its dependencies.
+*   **`notebooks/`**: Jupyter notebooks for model development, experimentation, and analysis.
+*   **`data/`**: (Not versioned) This directory is intended for storing datasets used in the project.
+*   **`models/`**:  This directory will store trained machine learning models.
+
+## Technologies and Packages
+
+This project leverages the following key technologies and Python packages:
+
+*   **Python**: The primary programming language.
+*   **TensorFlow/Keras**: For building and training deep learning models.
+*   **Hugging Face Transformers**: For utilizing pre-trained language models like DistilBERT.
+*   **NLTK**: For natural language processing tasks such as tokenization and stop-word removal.
+*   **FastAPI**: For building the RESTful API to serve the sentiment analysis model.
+*   **MLflow**: For tracking experiments, logging parameters, metrics, and models.
+*   **Docker**: For containerizing the application and its environment.
+*   **Terraform (OpenTofu)**: For defining and provisioning the infrastructure.
+*   **Jupyter Notebook**: For interactive development and experimentation.
+
+A detailed list of Python dependencies can be found in `api/requirements.txt` and `iac/ml-requirements.txt`.
 
 # Installation
 
@@ -23,48 +49,48 @@ For debug:
 docker exec -it ml_training bash
 ```
 
-# Points d'attention et Dépannage
+# Key Points and Troubleshooting
 
-Cette section clarifie certains aspects de la configuration qui peuvent prêter à confusion.
+This section clarifies some configuration aspects that may be confusing.
 
-## 1. Configuration de MLflow
+## 1. MLflow Configuration
 
-MLflow fonctionne sur un modèle client-serveur. Il est crucial que le client (votre notebook) et le serveur (l'interface web et le service de modèles) regardent le même emplacement pour les données.
+MLflow operates on a client-server model. It is crucial that the client (your notebook) and the server (the web interface and model service) look at the same location for data.
 
-*   **Dans le notebook (`projet7_distillbert.ipynb`)** :
+*   **In the notebook (`script_notebook_modelisation.ipynb`)**:
     ```python
     mlflow.set_tracking_uri("file:/mlflow")
     ```
-    Cette ligne configure le **client MLflow**. Elle lui indique de sauvegarder toutes les données (métriques, paramètres, modèles) dans le répertoire `/mlflow` **à l'intérieur du conteneur Docker**.
+    This line configures the **MLflow client**. It tells it to save all data (metrics, parameters, models) in the `/mlflow` directory **inside the Docker container**.
 
-*   **Dans le script de démarrage (`iac/start.sh`)** :
+*   **In the startup script (`iac/start.sh`)**:
     ```bash
     mlflow server --backend-store-uri /mlflow ...
     ```
-    Cette ligne démarre le **serveur MLflow** et lui indique de lire les données depuis ce même répertoire `/mlflow`.
+    This line starts the **MLflow server** and tells it to read data from this same `/mlflow` directory.
 
-*   **Le lien entre les deux (`iac/main.tf`)** :
-    La magie s'opère grâce au mappage de volume Docker :
+*   **The link between the two (`iac/main.tf`)**:
+    The magic happens thanks to Docker volume mapping:
     ```terraform
     volumes {
       host_path      = "/home/samuel/mlflow_data"
       container_path = "/mlflow"
     }
     ```
-    Ce bloc relie le répertoire `/mlflow` du conteneur au répertoire `/home/samuel/mlflow_data` sur votre machine hôte. Ainsi, les données écrites par le notebook sont persistées sur votre machine et lues par le serveur MLflow.
+    This block links the container's `/mlflow` directory to the `/home/samuel/mlflow_data` directory on your host machine. Thus, the data written by the notebook is persisted on your machine and read by the MLflow server.
 
-> **Conclusion** : Il est normal et correct que les chemins soient différents. L'un est vu de l'intérieur du conteneur, l'autre de l'extérieur. Le volume Docker les synchronise.
+> **Conclusion**: It is normal and correct for the paths to be different. One is seen from inside the container, the other from the outside. The Docker volume synchronizes them.
 
-## 2. Workflow Docker et Terraform (OpenTofu)
+## 2. Docker and Terraform (OpenTofu) Workflow
 
-Le build de l'image Docker est maintenant manuel pour éviter des problèmes de timeout avec Terraform.
+The Docker image build is now manual to avoid timeout issues with Terraform.
 
-Lorsque vous modifiez un fichier qui est inclus dans votre image Docker (comme `iac/start.sh`, `iac/Dockerfile`, `api/requirements.txt`, ou `iac/ml-requirements.txt`), vous devez reconstruire l'image manuellement:
+When you modify a file that is included in your Docker image (such as `iac/start.sh`, `iac/Dockerfile`, `api/requirements.txt`, or `iac/ml-requirements.txt`), you must rebuild the image manually:
 ```bash
 docker build -t mycustom/ml-image:latest -f iac/Dockerfile .
 ```
 
-`tofu apply` ne détectera pas ce changement automatiquement. Pour forcer Terraform/Tofu à recréer le conteneur avec la nouvelle image, nous utilisons une variable d'environnement dans `iac/main.tf` qui se base sur l'identifiant unique (hash) de l'image :
+`tofu apply` will not automatically detect this change. To force Terraform/Tofu to recreate the container with the new image, we use an environment variable in `iac/main.tf` which is based on the unique identifier (hash) of the image:
 
 ```terraform
 # iac/main.tf
@@ -75,36 +101,36 @@ resource "docker_container" "ml_container" {
 }
 ```
 
-Avec ce changement, chaque `tofu apply` après une reconstruction d'image mettra à jour votre conteneur.
+With this change, every `tofu apply` after an image rebuild will update your container.
 
-## 3. Dépendances Python
+## 3. Python Dependencies
 
-Les dépendances Python sont gérées dans deux fichiers :
-*   `api/requirements.txt`: pour l'application FastAPI.
-*   `iac/ml-requirements.txt`: pour l'environnement de machine learning (Jupyter, Tensorflow, etc.).
+Python dependencies are managed in two files:
+*   `api/requirements.txt`: for the FastAPI application.
+*   `iac/ml-requirements.txt`: for the machine learning environment (Jupyter, Tensorflow, etc.).
 
-Si vous ajoutez une dépendance, assurez-vous de l'ajouter au bon fichier, puis reconstruisez l'image Docker.
+If you add a dependency, be sure to add it to the correct file, then rebuild the Docker image.
 
-## 4. Erreur NLTK `LookupError: Resource punkt not found`
+## 4. NLTK Error `LookupError: Resource punkt not found`
 
-Lors de la première exécution du notebook, vous pourriez rencontrer une erreur liée à la bibliothèque `nltk`.
+When running the notebook for the first time, you may encounter an error related to the `nltk` library.
 
-**Cause** : `nltk` a besoin de télécharger des paquets de données (comme des tokenizers, des listes de stop-words, etc.) pour fonctionner.
+**Cause**: `nltk` needs to download data packages (such as tokenizers, stop-word lists, etc.) to function.
 
-**Solution** : Le notebook contient déjà une cellule qui s'occupe de ce téléchargement. Assurez-vous de l'exécuter.
+**Solution**: The notebook already contains a cell that handles this download. Make sure to run it.
 
 ```python
-# Cellule de téléchargement des ressources NLTK
+# NLTK resource download cell
 import nltk
 nltk.download('punkt')
 nltk.download('stopwords')
 ```
 
-Cette opération n'est nécessaire qu'une seule fois, car les données sont sauvegardées dans le conteneur.
+This operation is only necessary once, as the data is saved in the container.
 
 
 # Github Action runner
 ```bash
 cd actions-runner/
-./run.sh 
+./run.sh
 ```

@@ -35,7 +35,7 @@ app = FastAPI(
 # lorsque l'API démarre, et non à chaque requête.
 # Définir le chemin absolu
 BASE_DIR = Path(__file__).resolve().parent.parent
-MODEL_DIR = BASE_DIR / "sentiment_distilbert_model"
+MODEL_DIR = BASE_DIR / "models"
 
 print("Chargement du tokenizer...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
