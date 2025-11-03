@@ -1,0 +1,35 @@
+# monitoring/docker-compose.yml
+services:
+  # Service Loki pour la collecte des logs
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    ports:
+      - "3100:3100" # Le port sur lequel l'API va envoyer les logs
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+
+  # Service Grafana pour la visualisation et les alertes
+  grafana:
+    image: grafana/grafana-oss:10.1.5
+    container_name: grafana
+    ports:
+      - "3000:3000" # Le port pour accéder à l'interface Grafana
+    volumes:
+      - ./grafana_data:/var/lib/grafana # Persistance des données Grafana
+    depends_on:
+      - loki # S'assure que Loki démarre avant Grafana
+    networks:
+      - monitoring
+    environment:
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.gmail.com:587
+      - GF_SMTP_USER=samjudith@gmail.com
+      - GF_SMTP_PASSWORD=kbsx fqgo jeus jbcc
+      - GF_SMTP_FROM_ADDRESS=samjudith@gmail.com
+      - GF_SMTP_FROM_NAME=Alerte Grafana Air Paradis
+      - GF_SMTP_STARTTLS_POLICY=OpportunisticStartTLS
+
+networks:
+  monitoring:

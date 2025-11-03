@@ -4,3 +4,4 @@ terraform*
 *.backup
 mlruns
 actions-runner
+grafana_data
