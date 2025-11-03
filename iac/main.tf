@@ -11,21 +11,17 @@ provider "docker" {
   host = "unix:///var/run/docker.sock"
 }
 
-resource "docker_image" "ml_image" {
-  name         = "mycustom/ml-image:latest"
-  keep_locally = true # Empêche Terraform de supprimer l'image si elle n'est plus utilisée par un conteneur
-  build {
-    context = "."
-  }
+data "docker_image" "ml_image" {
+  name = "mycustom/ml-image:latest"
 }
 
 resource "docker_container" "ml_container" {
   name  = "ml_training"
-  image = docker_image.ml_image.name
+  image = data.docker_image.ml_image.name
 
   # Ajout d'une variable d'environnement pour forcer la recréation du conteneur
   # lorsque l'ID de l'image change.
-  env = ["IMAGE_ID=${docker_image.ml_image.id}"]
+  env = ["IMAGE_ID=${data.docker_image.ml_image.id}"]
 
   ports {
     internal = 8888
@@ -35,6 +31,11 @@ resource "docker_container" "ml_container" {
   ports {
     internal = 5000
     external = 5000
+  }
+
+  ports {
+    internal = 8000
+    external = 8000
   }
 
   volumes {

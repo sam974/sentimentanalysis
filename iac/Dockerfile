@@ -1,23 +1,27 @@
 FROM python:3.11-slim
 
-# Installer git pour MLflow et les packages Python nécessaires
-RUN apt-get update && apt-get install -y git 
+# Mettre à jour et installer les paquets système nécessaires
+RUN apt-get update && apt-get install -y git
 
-# Installer pip et packages Python en fixant la version tensorflow compatible
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir tensorflow==2.19.0 \
-    && pip install --no-cache-dir pandas mlflow jupyter torch transformers nltk tf-keras torchvision
+# Définir le répertoire de travail
+WORKDIR /app
 
-# Installer tensorflow-text avec version compatible (ajuster au besoin)
-RUN pip install --no-cache-dir tensorflow-text==2.19.0
+# Copier les fichiers de dépendances et les installer
+COPY api/requirements.txt ./api-requirements.txt
+COPY iac/ml-requirements.txt ./ml-requirements.txt
 
-# Exposer les ports pour Jupyter (8888) et MLflow (5000)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r api-requirements.txt && \
+    pip install --no-cache-dir -r ml-requirements.txt
+
+# Exposer les ports nécessaires
+EXPOSE 8000 
 EXPOSE 8888
 EXPOSE 5000
 
-# Copier le script de démarrage
-COPY start.sh /start.sh
+# Copier le script de démarrage et le rendre exécutable
+COPY iac/start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Lancer le script au démarrage
+# Commande par défaut pour lancer le conteneur
 CMD ["/start.sh"]

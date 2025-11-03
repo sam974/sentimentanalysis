@@ -3,3 +3,4 @@ glove*
 terraform*
 *.backup
 mlruns
+actions-runner
