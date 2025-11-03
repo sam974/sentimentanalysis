@@ -49,6 +49,53 @@ For debug:
 docker exec -it ml_training bash
 ```
 
+# Monitoring Installation
+
+This project uses Prometheus and Grafana for monitoring. These tools are deployed using Docker Compose.
+
+1.  **Ensure Docker is Running**: Make sure Docker Desktop or your Docker daemon is running on your machine.
+
+2.  **Navigate to the Monitoring Directory**:
+    ```bash
+    cd monitoring/
+    ```
+
+3.  **Start Monitoring Services**:
+    Run the following command to start Prometheus and Grafana:
+    ```bash
+    docker-compose up -d
+    ```
+    The `-d` flag runs the containers in detached mode (in the background).
+
+4.  **Access Grafana**:
+    Once the services are up, you can access Grafana by opening your web browser and navigating to `http://localhost:3000`.
+    *   **Default Username**: `admin`
+    *   **Default Password**: `admin` (you will be prompted to change this on first login)
+
+5.  **Access Prometheus**:
+    You can access the Prometheus UI at `http://localhost:9090`.
+
+6.  **Stop Monitoring Services**:
+    To stop and remove the monitoring containers, navigate to the `monitoring/` directory and run:
+    ```bash
+    docker-compose down
+    
+
+## 3. Python Dependencies
+
+Python dependencies are managed in two files:
+*   `api/requirements.txt`: for the FastAPI application.
+*   `iac/ml-requirements.txt`: for the machine learning environment (Jupyter, Tensorflow, etc.).
+
+If you add a dependency, be sure to add it to the correct file, then rebuild the Docker image.
+
+
+# Github Action runner
+```bash
+cd actions-runner/
+./run.sh
+```
+
 # Key Points and Troubleshooting
 
 This section clarifies some configuration aspects that may be confusing.
@@ -103,34 +150,3 @@ resource "docker_container" "ml_container" {
 
 With this change, every `tofu apply` after an image rebuild will update your container.
 
-## 3. Python Dependencies
-
-Python dependencies are managed in two files:
-*   `api/requirements.txt`: for the FastAPI application.
-*   `iac/ml-requirements.txt`: for the machine learning environment (Jupyter, Tensorflow, etc.).
-
-If you add a dependency, be sure to add it to the correct file, then rebuild the Docker image.
-
-## 4. NLTK Error `LookupError: Resource punkt not found`
-
-When running the notebook for the first time, you may encounter an error related to the `nltk` library.
-
-**Cause**: `nltk` needs to download data packages (such as tokenizers, stop-word lists, etc.) to function.
-
-**Solution**: The notebook already contains a cell that handles this download. Make sure to run it.
-
-```python
-# NLTK resource download cell
-import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-```
-
-This operation is only necessary once, as the data is saved in the container.
-
-
-# Github Action runner
-```bash
-cd actions-runner/
-./run.sh
-```
