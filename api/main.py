@@ -90,7 +90,6 @@ def log_feedback(feedback: FeedbackInput):
     """
     Enregistre un feedback utilisateur comme un log d'erreur dans Loki.
     """
-    print(f"FFFFFFFFFFFFEEDBACK RECEIVED22#tweet_text={feedback.text}#model_prediction={feedback.prediction}")
     logger.error(
         "Mauvaise prédiction signalée par l'utilisateur",
         extra={
