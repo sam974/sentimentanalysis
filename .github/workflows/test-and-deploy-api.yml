@@ -1,4 +1,4 @@
-name: Run Notebook on OpenTofu
+name: Test and deploy the Sentiment analysis API
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          export PYTHONPATH=$PYTHONPATH:./dev
+          export PYTHONPATH=$PYTHONPATH:./api
           pytest
 
   build-and-deploy:
