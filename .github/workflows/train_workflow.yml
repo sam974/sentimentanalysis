@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**/script_notebook_modelisation.ipynb'
 
 jobs:
   run-notebook:
@@ -20,4 +22,4 @@ jobs:
 
       - name: Execute Jupyter Notebook
         run: |
-          docker exec ml_training jupyter run /root/work/projet_7_distillbert.ipynb
+          docker exec ml_training jupyter run /root/work/script_notebook_modelisation.ipynb

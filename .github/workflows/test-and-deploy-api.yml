@@ -1,0 +1,44 @@
+name: Run Notebook on OpenTofu
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/main.py'      
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r api/requirements.txt # Fichier listant les dépendances (fastapi, torch, etc.)
+          pip install httpx pytest # Pour les tests
+
+      - name: Run unit tests
+        run: |
+          export PYTHONPATH=$PYTHONPATH:./dev
+          pytest
+
+  build-and-deploy:
+    needs: build-and-test # Ce job ne s'exécute que si les tests passent
+    runs-on: self-hosted
+    steps:
+      - name: Apply OpenTofu deployment
+        run: |
+          # cd /home/samuel/dev/ingenieuria/projet7/iac  # adapter à votre organisation sur la machine runner
+          cd ${SENTIMENT_ANALYSIS_IAC}
+          tofu apply -auto-approve
+
+      - name: Execute Jupyter Notebook
+        run: |
+          docker exec ml_training jupyter run /root/work/projet_7_distillbert.ipynb
