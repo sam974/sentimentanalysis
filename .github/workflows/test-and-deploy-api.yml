@@ -41,4 +41,4 @@ jobs:
 
       - name: Execute Jupyter Notebook
         run: |
-          docker exec ml_training jupyter run /root/work/projet_7_distillbert.ipynb
+          docker exec ml_training jupyter run /root/work/api/main.py

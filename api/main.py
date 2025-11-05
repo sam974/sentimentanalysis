@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from contextlib import asynccontextmanager
 import torch
 import logging
 import logging_loki
@@ -23,11 +24,29 @@ logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- Code à exécuter au démarrage ---
+    logger.info("Chargement du tokenizer...")
+    app.state.tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+    
+    logger.info("Chargement du modèle...")
+    app.state.model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
+    logger.info("Modèle et tokenizer chargés avec succès.")
+    
+    yield # C'est ici que l'application s'exécute
+    
+    # --- Code à exécuter à l'arrêt (optionnel) ---
+    logger.info("Nettoyage des ressources...")
+    app.state.model = None
+    app.state.tokenizer = None
+
 # --- 2. Création de l'application FastAPI ---
 app = FastAPI(
     title="API d'Analyse de Sentiment",
     description="Une API simple pour prédire le sentiment (positif/négatif) d'un texte basé sur un modèle DistilBERT.",
-    version="1.0"
+    version="1.0",
+    lifespan=lifespan
 )
 
 # --- 3. Chargement du modèle et du tokenizer (une seule fois au démarrage) ---
