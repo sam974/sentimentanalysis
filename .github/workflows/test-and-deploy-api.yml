@@ -17,6 +17,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           lfs: true
+      
+      # Force le runner à remplacer
+      # tous les pointeurs LFS par les vrais fichiers.
+      - name: Pull LFS files
+        run: git lfs pull
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
@@ -28,8 +33,9 @@ jobs:
           pip install -r api/requirements.txt # Fichier listant les dépendances (fastapi, torch, etc.)
           pip install httpx pytest # Pour les tests
 
-      - name: Run unit tests
+      - name: Run tests
         run: |
+          export TESTING=true   
           export PYTHONPATH=$PYTHONPATH:./api
           pytest
 
