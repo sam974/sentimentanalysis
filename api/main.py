@@ -2,7 +2,7 @@
 
 # --- 1. Imports ---
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from contextlib import asynccontextmanager
@@ -56,14 +56,14 @@ app = FastAPI(
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_DIR = BASE_DIR / "models"
 
-print("Chargement du tokenizer...")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+# print("Chargement du tokenizer...")
+# tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
 
-print("Chargement du modèle...")
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
-model.eval() # Mettre le modèle en mode évaluation est une bonne pratique
+# print("Chargement du modèle...")
+# model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
+# model.eval() # Mettre le modèle en mode évaluation est une bonne pratique
 
-print("Modèle et tokenizer chargés avec succès !")
+# print("Modèle et tokenizer chargés avec succès !")
 
 # --- 4. Définition du format des données d'entrée ---
 # On utilise Pydantic pour définir la "carte d'identité" des données que l'API attend.
@@ -77,12 +77,18 @@ class FeedbackInput(BaseModel):
 
 # --- 5. Création du point de terminaison (endpoint) de prédiction ---
 @app.post("/predict/")
-def predict_sentiment(tweet: TweetInput):
+def predict_sentiment(tweet: TweetInput, request: Request)):
     """
     Prédit le sentiment d'un tweet.
     - **text**: Le texte du tweet à analyser.
     - **return**: Un JSON avec le sentiment prédit et le score de confiance.
     """
+
+    # --- Récupérer le modèle et le tokenizer depuis l'état de l'application ---
+    # C'est ici que la magie opère : on utilise les objets chargés par le 'lifespan'
+    tokenizer = request.app.state.tokenizer
+    model = request.app.state.model
+
     # Étape 1 : Préparer le texte avec le tokenizer
     inputs = tokenizer(tweet.text, return_tensors="pt", truncation=True, padding=True)
 
