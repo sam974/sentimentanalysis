@@ -2,8 +2,6 @@ import pytest
 from fastapi.testclient import TestClient
 from api.main import app # On importe notre application FastAPI
 
-# --- La Correction (La Fixture) ---
-#
 # On crée un "fixture" pour nos tests.
 # Le 'scope="module"' signifie que le code de démarrage (lifespan)
 # ne s'exécutera qu'une seule fois pour tous les tests de ce fichier,

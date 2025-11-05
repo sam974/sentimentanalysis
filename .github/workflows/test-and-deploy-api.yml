@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'api/main.py'      
+      - 'api/main.py'
+      - 'api/tests/test_api.py'
 
 jobs:
   build-and-test:
