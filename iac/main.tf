@@ -39,17 +39,17 @@ resource "docker_container" "ml_container" {
   }
 
   volumes {
-    host_path      = "/home/samuel/mlflow_data"   # chemin sur la machine hôte à créer
+    host_path      = "${path.cwd}/mlflow_data"   # chemin sur la machine hôte à créer
     container_path = "/mlflow"
   }
 
   volumes {
-    host_path      = "/home/samuel/dev/ingenieuria/projet7"
+    host_path      = path.cwd
     container_path = "/root/work"
   }
 
   volumes {
-    host_path      = "/home/samuel/dev/ingenieuria/projet7/input"
+    host_path      = "${path.cwd}/input"
     container_path = "/root/work/input"
   }
 
