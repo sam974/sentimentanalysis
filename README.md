@@ -14,6 +14,24 @@ The project is organized into the following directories:
 
 This project requires certain data files to be placed in the `data/` directory.
 
+### Automated Data Population
+
+A shell script is provided to automate the download and setup of the required dataset. To use it, run the following command from the root of the project:
+
+```bash
+bash populate_data.sh
+```
+
+This script will:
+1. Create the `data` directory.
+2. Download the sentiment analysis dataset.
+3. Extract the archive and move the relevant CSV file (`training.1600000.processed.noemoticon.csv`) into the `data` directory.
+4. Clean up the temporary files.
+
+### Manual Data Setup
+
+If you prefer to set up the data manually, follow these steps:
+
 1.  **Glove Embeddings**:
     *   The file `glove.6B.100d.txt` is required. It should be placed in `data/glove.6B/`.
     *   This file is part of the GloVe embeddings which can be downloaded from the [Stanford NLP website](https://nlp.stanford.edu/projects/glove/). You will need to download `glove.6B.zip` and extract it.
@@ -91,7 +109,24 @@ This project uses Prometheus and Grafana for monitoring. These tools are deploye
     To stop and remove the monitoring containers, navigate to the `monitoring/` directory and run:
     ```bash
     docker-compose down
-    
+    ```
+
+### Grafana Alerting Rules
+
+This project includes a predefined alerting rule for Grafana. To use it, you need to import the rules from the `monitoring/alerting_rules.yaml` file into your Grafana instance.
+
+**To import the rules:**
+
+1.  Navigate to your Grafana instance (usually `http://localhost:3000`).
+2.  Go to the "Alerting" section in the left-hand menu.
+3.  Find the option to import alert rules and upload the `alerting_rules.yaml` file.
+
+**Defined Rule:**
+
+*   **Alert: High Prediction Error Rate (`Alerte - Taux d'erreur de prédiction élevé`)**
+    *   **Description:** This rule monitors the number of incorrect predictions made by the sentiment analysis API.
+    *   **Condition:** It triggers an alert if there are more than 2 `bad_prediction` events within a 5-minute window.
+
 
 ## 3. Python Dependencies
 
