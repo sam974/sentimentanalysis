@@ -10,6 +10,18 @@ The project is organized into the following directories:
 *   **`data/`**: (Not versioned) This directory is intended for storing datasets used in the project.
 *   **`models/`**:  This directory will store trained machine learning models.
 
+## Data Setup
+
+This project requires certain data files to be placed in the `data/` directory.
+
+1.  **Glove Embeddings**:
+    *   The file `glove.6B.100d.txt` is required. It should be placed in `data/glove.6B/`.
+    *   This file is part of the GloVe embeddings which can be downloaded from the [Stanford NLP website](https://nlp.stanford.edu/projects/glove/). You will need to download `glove.6B.zip` and extract it.
+
+2.  **Sentiment Analysis Dataset**:
+    *   The training dataset needs to be downloaded and extracted into the `data/` directory.
+    *   Download the dataset from [this link](https://s3-eu-west-1.amazonaws.com/static.oc-static.com/prod/courses/files/AI+Engineer/Project+7%C2%A0-+D%C3%A9tectez+les+Bad+Buzz+gr%C3%A2ce+au+Deep+Learning/sentiment140.zip).
+
 ## Technologies and Packages
 
 This project leverages the following key technologies and Python packages:
